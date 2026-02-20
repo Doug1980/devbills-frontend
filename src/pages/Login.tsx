@@ -1,0 +1,44 @@
+import { signInWithPopup } from "firebase/auth";
+import GoogleLoginButton from "../components/GoogleLoginButton";
+import { firebaseAuth, googleAuthProvider } from "../config/firebase";
+
+const Login = () => {
+  const handleLogin = async () => {
+    const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
+    console.log(result);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <header>
+            <h1 className="text-center text-3xl font-extrabold text-gray-900">DevBills</h1>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Gerencie suas finanças de forma simples e eficiente
+            </p>
+          </header>
+
+          <main className="mt-8 bg-white py-8 px-4 shadow-md rounded-lg sm:px-10 space-y-6">
+            <section className="mb-6">
+              <h2 className="text-lg font-medium text-gray-900">Faça o login para continuar</h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Acesse sua conta para começar a gerenciar suas finanças
+              </p>
+            </section>
+
+            <GoogleLoginButton onClick={handleLogin} isLoading={false} />
+
+            <footer className="mt-6">
+              <p className="mt-1 text-sm text-gray-600 text-center">
+                Ao fazer Login, você concorda com nossos termos de uso e política de privacidade.
+              </p>
+            </footer>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
