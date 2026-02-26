@@ -40,3 +40,16 @@ body {
 .container-app{
     @apply max-w-7xl mx-auto px-4;
 }
+
+@keyframes glow{
+    0% {
+        box-shadow: 0 0 5px rgba(55,227, 89, 0.3) 
+    }
+    100%{
+        box-shadow: 0 0 15px rgba(55,227, 89, 0.3) 
+    }
+}
+
+.glow{
+    animation: glow 1s ease-in-out infinite alternate
+}
