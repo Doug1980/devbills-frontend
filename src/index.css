@@ -53,3 +53,13 @@ body {
 .glow{
     animation: glow 1s ease-in-out infinite alternate
 }
+
+.input-focus {
+    @apply focus:outline-none focus:ring-2 focus:border-primary-500;
+    --tw-ring-color: rgba(55, 227, 89, 0.2);
+}
+
+.input-focus-error {
+    @apply focus:outline-none focus:ring-2 focus:border-red-500;
+    --tw-ring-color: rgba(255, 88, 115, 0.2);
+}
