@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowDown, ArrowUp, Car, Plus, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { type ChangeEvent, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "react-toastify";
 import Button from "../components/Button";
@@ -17,8 +17,10 @@ const Transactions = () => {
   const [month, setMonth] = useState<number>(currentDate.getMonth() + 1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [deletingId, setDeletingId] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
 
   const fetchTransactions = async (): Promise<void> => {
     try {
@@ -26,6 +28,8 @@ const Transactions = () => {
       setError("");
       const data = await getTransactions({ month, year });
       setTransactions(data);
+      setFilteredTransactions(data);
+
       console.log(data);
     } catch (err) {
       setError("Não foi possível carregar as transações, tente novemante");
@@ -59,6 +63,15 @@ const Transactions = () => {
     fetchTransactions();
   }, [month, year]);
 
+  const handleSearchChange = (event: ChangeEvent<HTMLAnchorElement>): void => {
+    setSearchText(event.target.value);
+    setFilteredTransactions(
+      transactions.filter((transaction) =>
+        transaction.description.toUpperCase().includes(event.target.value.toUpperCase()),
+      ),
+    );
+  };
+
   return (
     <div className="container-app py-6">
       <div className=" flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -83,7 +96,9 @@ const Transactions = () => {
         <Input
           placeholder="Buscar transações..."
           icon={<Search className="w-4 h-4" />}
-          fullWildth
+          fullWidth
+          onChange={handleSearchChange}
+          value={searchText}
         />
       </Card>
 
@@ -150,7 +165,7 @@ const Transactions = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {transactions.map((transaction) => (
+                {filteredTransactions.map((transaction) => (
                   <tr key={transaction.id} className="hover:bg-gray-800">
                     <td className="px-6 py-4 tex-sm text-gray-400 whitespace-nowrap">
                       <div className="flex items-center">
