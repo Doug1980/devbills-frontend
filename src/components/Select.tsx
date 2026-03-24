@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { type ReactNode, type SelectHTMLAttributes, useId } from "react";
 
 interface SelectOption {
@@ -26,18 +27,36 @@ const Select = ({
   const selectId = useId();
   return (
     <div className={`${fullWidth ? "w-full" : ""} mb-4`}>
-      {label && <label htmlFor={selectId}>{label}</label>}
+      {label && (
+        <label htmlFor={selectId} className="block text-sm text-gray-50 mb-2">
+          {label}
+        </label>
+      )}
       <div className="relative">
-        {icon && <div className="absolute insert-y-0 left-0 pl-2 flex items-center">{icon}</div>}
+        {icon && (
+          <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-gray-400">
+            {icon}
+          </div>
+        )}
+        <select
+          id={selectId}
+          {...rest}
+          className={`block w-full bg-gray-800 py-3 ${icon ? "pl-10" : "pl-4"} pr-4 rounded-xl text-gray-50 text-sm
+            border
+            ${error ? "border-red-500" : "border-gray-700"}
+            ${error ? "focus:border-red-500" : "focus:border-primary-500"}
+            focus:outline-none outline-none appearance-none`}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value} className="text-gray-900 bg-white">
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+          <ChevronDown className="h-5 w-5 text-gray-50" />
+        </div>
       </div>
-
-      <select id={selectId} {...rest}>
-        {options.map((options) => (
-          <option key={options.value} value={options.value} className="text-gray-900 bg-white">
-            {options.label}
-          </option>
-        ))}
-      </select>
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
