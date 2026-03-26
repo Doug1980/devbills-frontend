@@ -1,4 +1,5 @@
 import type {
+  CreateTransactionDTO,
   MonthlyItem,
   Transaction,
   TransactionFilter,
@@ -44,4 +45,11 @@ export const getTransactionsMonthly = async (
 
 export const deleteTransactions = async (id: string): Promise<void> => {
   await api.delete(`/transactions/${id}`);
+};
+
+export const createTransaction = async (
+  transactionData: CreateTransactionDTO,
+): Promise<Transaction> => {
+  const response = await api.post<Transaction>("/transactions", transactionData);
+  return response.data;
 };

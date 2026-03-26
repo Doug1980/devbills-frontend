@@ -43,7 +43,7 @@ const Transactions = () => {
       setDeletingId(id);
       await deleteTransactions(id);
       toast.success("Transação deletada com sucesso!");
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      setFilteredTransactions((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error(err);
       toast.error("Falha na transação");

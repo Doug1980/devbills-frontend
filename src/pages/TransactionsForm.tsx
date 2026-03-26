@@ -1,14 +1,16 @@
 import { AlertCircle, Calendar, DollarSign, Save, Tag } from "lucide-react";
 import { type ChangeEvent, type FormEvent, useEffect, useId, useState } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Select from "../components/Select";
 import TransactionTypeSelector from "../components/TransactionTypeSelector";
 import { getCategories } from "../services/categoryService";
+import { createTransaction } from "../services/transactionServices";
 import type { Category } from "../types/category";
-import { TransactionType } from "../types/transactions";
+import { type CreateTransactionDTO, TransactionType } from "../types/transactions";
 
 interface FormData {
   description: string;
@@ -30,6 +32,7 @@ const TransactionsForm = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const formId = useId();
   const navigate = useNavigate();
 
@@ -45,7 +48,7 @@ const TransactionsForm = () => {
   const filteredCategories = categories.filter((category) => category.type === formData.type);
 
   const validadeForm = (): boolean => {
-    if (!formData || !formData.amount || formData.date || formData.categoryId) {
+    if (!formData || !formData.amount || !formData.date || !formData.categoryId) {
       setError("Necessário preencher todos os campos");
       return false;
     }
@@ -62,19 +65,41 @@ const TransactionsForm = () => {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "amount" ? parseFloat(value) || 0 : value,
+    }));
   };
+
+  const LOADING_DELAY_MS = 2000;
 
   const handleSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
+    setError(null);
+
+    if (!validadeForm()) return; // ✅ valida antes de ativar o loading
+
+    setLoading(true); // ✅ só ativa o loading se passou na validação
 
     try {
-      if (!validadeForm()) {
-        return;
-      }
-    } catch (err) {}
+      const transactionData: CreateTransactionDTO = {
+        description: formData.description,
+        amount: formData.amount,
+        categoryId: formData.categoryId,
+        type: formData.type,
+        date: `${formData.date}T12:00:00.000Z`,
+      };
 
-    console.log(event);
+      const delay = new Promise((resolve) => setTimeout(resolve, LOADING_DELAY_MS)); // ✅
+      await Promise.all([createTransaction(transactionData), delay]); // ✅
+
+      toast.success("Transação realizada com sucesso");
+      navigate("/transacoes");
+    } catch (err) {
+      toast.error("Falha ao adicionar transação");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -147,14 +172,21 @@ const TransactionsForm = () => {
             />
 
             <div className="flex justify-end space-x-3 mt-2">
-              <Button variant="outline" onClick={handleCancel}>
+              <Button variant="outline" onClick={handleCancel} type="button" disabled={loading}>
                 Cancelar
               </Button>
               <Button
+                disabled={loading}
                 type="submit"
                 variant={formData.type === TransactionType.EXPENSE ? "danger" : "success"}
               >
-                <Save className="w-4 h-4 mr-2" />
+                {loading ? (
+                  <div className=" flex items-center justify-center">
+                    <div className="w-4 h-4 border-4 border-gray-700 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
                 Salvar
               </Button>
             </div>
