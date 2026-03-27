@@ -4,7 +4,7 @@ import { firebaseAuth, googleAuthProvider } from "../config/firebase";
 import type { AuthState } from "../types/auth";
 
 interface AuthContextProps {
-  AuthState: AuthState;
+  authState: AuthState;
   signWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -12,10 +12,10 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [AuthState, setAuthState] = useState<AuthState>({
+  const [authState, setAuthState] = useState<AuthState>({
     user: null,
     error: null,
-    loading: false,
+    loading: true,
   });
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ AuthState, signWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ authState, signWithGoogle, signOut }}>
       {children}{" "}
     </AuthContext.Provider>
   );

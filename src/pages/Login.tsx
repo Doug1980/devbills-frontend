@@ -4,7 +4,7 @@ import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const { signWithGoogle, AuthState } = useAuth();
+  const { signWithGoogle, authState } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -16,10 +16,10 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (AuthState.user && !AuthState.loading) {
+    if (authState.user && !authState.loading) {
       navigate("/dashboard");
     }
-  }, [AuthState.user, AuthState.loading, navigate]);
+  }, [authState.user, authState.loading, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -42,9 +42,9 @@ const Login = () => {
 
             <GoogleLoginButton onClick={handleLogin} isLoading={false} />
 
-            {AuthState.error && (
+            {authState.error && (
               <div className="bg-red-300 text-center text-red-700 mt-4">
-                <p>{AuthState.error} Erro no sistema</p>
+                <p>{authState.error} Erro no sistema</p>
               </div>
             )}
             <footer className="mt-6">

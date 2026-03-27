@@ -105,7 +105,7 @@ const Dashboard = () => {
         {/* THIRD-CARD */}
         <Card icon={<Wallet size={20} className="text-red-500" />} title="Despesas" hover>
           <p className={"text-2xl font-semibold mt-2 text-red-500"}>
-            {formatCurrency(summary.balance)}
+            {formatCurrency(summary.totalExpenses)}
           </p>
         </Card>
       </div>

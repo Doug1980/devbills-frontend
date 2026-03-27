@@ -2,7 +2,6 @@ import { CreditCard, List, TrendingUp, Wallet } from "lucide-react";
 import type { JSX } from "react";
 import { useNavigate } from "react-router";
 import Button from "../components/Button";
-import { useAuth } from "../context/AuthContext";
 
 interface Feature {
   icon: JSX.Element;
@@ -40,8 +39,8 @@ const Home = () => {
 
   return (
     <div className="bg-gray-950 min-h-screen">
-      <div className="container app">
-        <section className="py-12 md:py-20">
+      <div className="container-app">
+        <section className="py-12 md:py-20 pl-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -60,7 +59,7 @@ const Home = () => {
           </div>
         </section>
 
-        <section className="py-12 md:py-20 bg-gray-900 rounded-xl">
+        <section className="flex justify-center py-12 md:py-20 bg-gray-900 rounded-xl">
           <div className="container-app">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-white mb-4">Recursos do DevBills</h2>
@@ -85,8 +84,8 @@ const Home = () => {
           </div>
         </section>
 
-        <section className="py-12 md:py-20">
-          <div className="bg-gray-900 p-8 md:p-12 rounded-xl text-center border border-gray-700">
+        <section className="py-12 md:py-20 ">
+          <div className=" bg-gray-900 p-8 md:p-12 rounded-xl text-center border border-gray-700 ">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
               Pronto para organizar suas finanças
             </h2>
