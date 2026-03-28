@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { CirclePlus } from "lucide-react";
 import { type ReactNode, type SelectHTMLAttributes, useId } from "react";
 
 interface SelectOption {
@@ -12,6 +12,7 @@ interface SelectPros extends SelectHTMLAttributes<HTMLSelectElement> {
   icon?: ReactNode;
   fullWidth?: boolean;
   options: SelectOption[];
+  onAdd?: () => void; // 👈 nova prop
 }
 
 const Select = ({
@@ -22,6 +23,7 @@ const Select = ({
   fullWidth = true,
   className = "",
   id,
+  onAdd, // 👈 desestruturar
   ...rest
 }: SelectPros) => {
   const selectId = useId();
@@ -41,7 +43,7 @@ const Select = ({
         <select
           id={selectId}
           {...rest}
-          className={`block w-full bg-gray-800 py-3 ${icon ? "pl-10" : "pl-4"} pr-4 rounded-xl text-gray-50 text-sm
+          className={`block w-full bg-gray-800 py-3 ${icon ? "pl-10" : "pl-4"} pr-4 rounded-xl text-gray-50 text-sm cursor-pointer
             border
             ${error ? "border-red-500" : "border-gray-700"}
             ${error ? "focus:border-red-500" : "focus:border-primary-500"}
@@ -54,7 +56,10 @@ const Select = ({
           ))}
         </select>
         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-          <ChevronDown className="h-5 w-5 text-gray-50" />
+          <CirclePlus
+            className={`h-5 w-5 transition-colors ${onAdd ? "text-primary-500 cursor-pointer hover:text-primary-600" : "text-gray-400"}`}
+            onClick={onAdd} // 👈 dispara a ação
+          />
         </div>
       </div>
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}

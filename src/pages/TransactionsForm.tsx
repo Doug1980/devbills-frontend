@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import CategoryModal from "../components/CategoryModal";
 import Input from "../components/Input";
 import Select from "../components/Select";
 import TransactionTypeSelector from "../components/TransactionTypeSelector";
@@ -33,15 +34,18 @@ const TransactionsForm = () => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  // ✅ estado que controla abertura/fechamento do modal de categoria
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false);
   const formId = useId();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCategories = async (): Promise<void> => {
-      const response = await getCategories();
-      setCategories(response);
-    };
+  // ✅ extraído do useEffect para poder ser reutilizado no onCategoryCreated
+  const fetchCategories = async (): Promise<void> => {
+    const response = await getCategories();
+    setCategories(response);
+  };
 
+  useEffect(() => {
     fetchCategories();
   }, []);
 
@@ -77,9 +81,9 @@ const TransactionsForm = () => {
     event.preventDefault();
     setError(null);
 
-    if (!validadeForm()) return; // ✅ valida antes de ativar o loading
+    if (!validadeForm()) return;
 
-    setLoading(true); // ✅ só ativa o loading se passou na validação
+    setLoading(true);
 
     try {
       const transactionData: CreateTransactionDTO = {
@@ -90,8 +94,8 @@ const TransactionsForm = () => {
         date: `${formData.date}T12:00:00.000Z`,
       };
 
-      const delay = new Promise((resolve) => setTimeout(resolve, LOADING_DELAY_MS)); // ✅
-      await Promise.all([createTransaction(transactionData), delay]); // ✅
+      const delay = new Promise((resolve) => setTimeout(resolve, LOADING_DELAY_MS));
+      await Promise.all([createTransaction(transactionData), delay]);
 
       toast.success("Transação realizada com sucesso");
       navigate("/transacoes");
@@ -128,6 +132,7 @@ const TransactionsForm = () => {
                 onChange={handleTransactionType}
               />
             </div>
+
             <Input
               label="Descrição"
               name="description"
@@ -140,11 +145,26 @@ const TransactionsForm = () => {
               label="Valor"
               name="amount"
               type="number"
+              inputMode="decimal"
               step="0.01"
-              value={formData.amount}
+              min="0"
+              // ✅ exibe vazio quando valor é 0, evitando o "0" fixo no input
+              value={formData.amount === 0 ? "" : formData.amount}
               onChange={handleChange}
-              placeholder="RS$ 0,00"
-              icon={<DollarSign className="w-4 h-4" />}
+              placeholder="0,00"
+              icon={<DollarSign className="w-4 h-4 ml-2 mt-1" />}
+              // ✅ ao focar, limpa o campo se o valor for "0"
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.value = "";
+                }
+              }}
+              // ✅ ao sair do campo vazio, volta para 0
+              onBlur={(e) => {
+                if (e.target.value === "") {
+                  setFormData((prev) => ({ ...prev, amount: 0 }));
+                }
+              }}
             />
 
             <Input
@@ -153,7 +173,7 @@ const TransactionsForm = () => {
               type="date"
               value={formData.date}
               onChange={handleChange}
-              icon={<Calendar className="w-4 h-4" />}
+              icon={<Calendar className="w-4 h-4 ml-2 mt-2" />}
             />
 
             <Select
@@ -162,6 +182,8 @@ const TransactionsForm = () => {
               value={formData.categoryId}
               onChange={handleChange}
               icon={<Tag className="w-4 h-4" />}
+              // ✅ ao clicar no CirclePlus, abre o modal de nova categoria
+              onAdd={() => setIsCategoryModalOpen(true)}
               options={[
                 { value: "", label: "Selecione uma categoria" },
                 ...filteredCategories.map((category) => ({
@@ -181,7 +203,7 @@ const TransactionsForm = () => {
                 variant={formData.type === TransactionType.EXPENSE ? "danger" : "success"}
               >
                 {loading ? (
-                  <div className=" flex items-center justify-center">
+                  <div className="flex items-center justify-center">
                     <div className="w-4 h-4 border-4 border-gray-700 border-t-transparent rounded-full animate-spin" />
                   </div>
                 ) : (
@@ -191,6 +213,16 @@ const TransactionsForm = () => {
               </Button>
             </div>
           </form>
+
+          {/* ✅ modal de criação de categoria — só renderiza quando isCategoryModalOpen é true */}
+          {/* ✅ onCategoryCreated chama fetchCategories para atualizar a lista automaticamente */}
+          {/* ✅ defaultType passa o tipo atual do formulário (despesa ou receita) para o modal */}
+          <CategoryModal
+            isOpen={isCategoryModalOpen}
+            onClose={() => setIsCategoryModalOpen(false)}
+            onCategoryCreated={fetchCategories}
+            defaultType={formData.type}
+          />
         </Card>
       </div>
     </div>

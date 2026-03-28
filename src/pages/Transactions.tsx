@@ -1,9 +1,10 @@
-import { AlertCircle, ArrowDown, ArrowUp, Car, Plus, Search, Trash2 } from "lucide-react";
+import { AlertCircle, ArrowDown, ArrowUp, Plus, Search, Trash2 } from "lucide-react";
 import { type ChangeEvent, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "react-toastify";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import EditTransactionModal from "../components/EditTransactionModal";
 import Input from "../components/Input";
 import MonthYearSelect from "../components/MonthYearSelect";
 import { deleteTransactions, getTransactions } from "../services/transactionServices";
@@ -21,6 +22,8 @@ const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [deletingId, setDeletingId] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
+  // ✅ estado para controlar qual transação está sendo editada
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const fetchTransactions = async (): Promise<void> => {
     try {
@@ -29,10 +32,8 @@ const Transactions = () => {
       const data = await getTransactions({ month, year });
       setTransactions(data);
       setFilteredTransactions(data);
-
-      console.log(data);
     } catch (err) {
-      setError("Não foi possível carregar as transações, tente novemante");
+      setError("Não foi possível carregar as transações, tente novamente");
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ const Transactions = () => {
   };
 
   const confirmDelete = (id: string): void => {
-    if (window.confirm("Tem certeza que deseja deletar essa transação? ")) {
+    if (window.confirm("Tem certeza que deseja deletar essa transação?")) {
       handleDelete(id);
     }
   };
@@ -74,16 +75,17 @@ const Transactions = () => {
 
   return (
     <div className="container-app py-6">
-      <div className=" flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <h1 className="text-2xl font-bold mb-4 md:mb-4">Transações</h1>
         <Link
           to="/transacoes/nova"
-          className="bg-primary-500 text-[#051626] font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center hover:bg-primary-600 transition-all "
+          className="bg-primary-500 text-[#051626] font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center hover:bg-primary-600 transition-all"
         >
           <Plus className="w-4 h-4 mr-2" />
           Nova Transação
         </Link>
       </div>
+
       <Card className="mb-6">
         <MonthYearSelect
           month={month}
@@ -92,6 +94,7 @@ const Transactions = () => {
           onYearChange={setYear}
         />
       </Card>
+
       <Card className="mb-6">
         <Input
           placeholder="Buscar transações..."
@@ -104,7 +107,7 @@ const Transactions = () => {
 
       <Card className="overflow-hidden">
         {loading ? (
-          <div className=" flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : error ? (
@@ -118,10 +121,9 @@ const Transactions = () => {
         ) : transactions?.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">Nenhuma transação encontrada</p>
-
             <Link
               to="/transacoes/nova"
-              className=" w-fit mx-auto mt-6 bg-primary-500 text-[#051626] font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center hover:bg-primary-600 transition-all "
+              className="w-fit mx-auto mt-6 bg-primary-500 text-[#051626] font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center hover:bg-primary-600 transition-all"
             >
               <Plus className="w-4 h-4 mr-2" />
               Nova Transação
@@ -138,27 +140,30 @@ const Transactions = () => {
                   >
                     Descrição
                   </th>
+                  {/* ✅ esconde Data no mobile */}
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                    className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
                   >
                     Data
                   </th>
+                  {/* ✅ esconde Categoria no mobile */}
                   <th
                     scope="col"
-                    className="px-6 py-6 text-left text-xs font-medium text-gray-400 uppercase"
+                    className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
                   >
                     Categoria
                   </th>
+                  {/* ✅ Valor só aparece a partir do sm */}
                   <th
                     scope="col"
-                    className="px-6 py-6 text-left text-xs font-medium text-gray-400 uppercase"
+                    className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
                   >
                     Valor
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-6 text-left text-xs font-medium text-gray-400 uppercase"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
                   >
                     {" "}
                   </th>
@@ -166,8 +171,12 @@ const Transactions = () => {
               </thead>
               <tbody className="divide-y divide-gray-700">
                 {filteredTransactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-gray-800">
-                    <td className="px-6 py-4 tex-sm text-gray-400 whitespace-nowrap">
+                  <tr
+                    key={transaction.id}
+                    className="hover:bg-gray-800 cursor-pointer"
+                    onClick={() => setEditingTransaction(transaction)}
+                  >
+                    <td className="px-3 py-4 text-sm text-gray-400 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="mr-2">
                           {transaction.type === TransactionType.INCOME ? (
@@ -176,15 +185,26 @@ const Transactions = () => {
                             <ArrowDown className="w-4 h-4 text-red-500" />
                           )}
                         </div>
-                        <span className="text-sm font-medium text-gray-50">
-                          {transaction.description}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-50">
+                            {transaction.description}
+                          </span>
+                          {/* ✅ mostra valor e data abaixo da descrição apenas no mobile */}
+                          <span className="sm:hidden text-xs text-gray-400 mt-0.5">
+                            {formatDate(transaction.date)}
+                          </span>
+                          <span>{formatCurrency(transaction.amount)}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 tex-sm whitespace-nowrap">
+
+                    {/* ✅ esconde Data no mobile */}
+                    <td className="hidden sm:table-cell px-6 py-4 text-sm whitespace-nowrap">
                       {formatDate(transaction.date)}
                     </td>
-                    <td className="px-6 py-4 tex-sm whitespace-nowrap">
+
+                    {/* ✅ esconde Categoria no mobile */}
+                    <td className="hidden md:table-cell px-6 py-4 text-sm whitespace-nowrap">
                       <div className="flex items-center">
                         <div
                           className="w-2 h-2 rounded-full mr-2"
@@ -193,24 +213,31 @@ const Transactions = () => {
                         <span className="text-sm text-gray-400">{transaction.category.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 tex-sm whitespace-nowrap">
+
+                    {/* ✅ esconde Valor no mobile (já aparece abaixo da descrição) */}
+                    <td className="hidden sm:table-cell px-6 py-4 text-sm whitespace-nowrap">
                       <span
                         className={`${transaction.type === TransactionType.INCOME ? "text-primary-500" : "text-red-500"}`}
                       >
                         {formatCurrency(transaction.amount)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 tex-sm whitespace-nowrap cursor-pointer">
+
+                    {/* ✅ lixeira sempre visível */}
+                    <td className="px-3 py-4 text-sm whitespace-nowrap">
                       <button
                         type="button"
-                        onClick={() => confirmDelete(transaction.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          confirmDelete(transaction.id);
+                        }}
                         className="text-red-500 hover:text-red-400 rounded-full cursor-pointer"
                         disabled={deletingId === transaction.id}
                       >
                         {deletingId === transaction.id ? (
-                          <span className="inline-block w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin " />
+                          <span className="inline-block w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <Trash2 className=" w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         )}
                       </button>
                     </td>
@@ -221,6 +248,16 @@ const Transactions = () => {
           </div>
         )}
       </Card>
+
+      {/* ✅ modal de edição — só renderiza quando há uma transação selecionada */}
+      {/* ✅ onUpdated recarrega a lista após salvar as alterações */}
+      {/* ✅ onClose limpa a transação selecionada, fechando o modal */}
+      <EditTransactionModal
+        isOpen={!!editingTransaction}
+        transaction={editingTransaction}
+        onClose={() => setEditingTransaction(null)}
+        onUpdated={fetchTransactions}
+      />
     </div>
   );
 };

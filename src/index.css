@@ -63,3 +63,10 @@ body {
     @apply focus:outline-none focus:ring-2 focus:border-red-500;
     --tw-ring-color: rgba(255, 88, 115, 0.2);
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0) saturate(100%) invert(71%) sepia(98%) saturate(412%) hue-rotate(83deg) brightness(80%) contrast(101%);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}

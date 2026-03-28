@@ -10,3 +10,13 @@ export const getCategories = async (): Promise<Category[]> => {
     throw new Error();
   }
 };
+
+export const createCategory = async (data: { name: string; type: string }): Promise<Category> => {
+  try {
+    const response = await api.post("/categories", data);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw new Error();
+  }
+};

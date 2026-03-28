@@ -53,3 +53,11 @@ export const createTransaction = async (
   const response = await api.post<Transaction>("/transactions", transactionData);
   return response.data;
 };
+
+export const updateTransaction = async (
+  id: string,
+  data: Partial<CreateTransactionDTO>,
+): Promise<Transaction> => {
+  const response = await api.put<Transaction>(`/transactions/${id}`, data);
+  return response.data;
+};

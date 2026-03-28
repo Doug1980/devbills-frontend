@@ -120,6 +120,21 @@ const Header = () => {
           <div>
             {isAuthenticated ? (
               <>
+                {/* Avatar Mobile — agora ACIMA das opções de navegação */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                  <div className="flex items-center space-x-2">
+                    {renderAvatar()}
+                    <span>{authState.user?.displayName}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="cursor-pointer text-gray-400 hover:text-red-700 p-2 rounded-full hover:bg-red-200 transition-colors"
+                  >
+                    <LogOut size={20} />
+                  </button>
+                </div>
+
                 <nav className="space-y-1">
                   {navLink.map((link) => (
                     <Link
@@ -136,21 +151,6 @@ const Header = () => {
                     </Link>
                   ))}
                 </nav>
-
-                {/* Avatar Mobile */}
-                <div className="flex items-center justify-between p-4 border-t border-gray-700">
-                  <div className="flex items-center space-x-2">
-                    {renderAvatar()}
-                    <span>{authState.user?.displayName}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="cursor-pointer text-gray-400 hover:text-red-700 p-2 rounded-full hover:bg-red-200 transition-colors"
-                  >
-                    <LogOut size={20} />
-                  </button>
-                </div>
               </>
             ) : (
               <Link
