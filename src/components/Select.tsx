@@ -55,12 +55,15 @@ const Select = ({
             </option>
           ))}
         </select>
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-          <CirclePlus
-            className={`h-5 w-5 transition-colors ${onAdd ? "text-primary-500 cursor-pointer hover:text-primary-600" : "text-gray-400"}`}
-            onClick={onAdd} // 👈 dispara a ação
-          />
-        </div>
+        {/* ✅ depois — só aparece quando onAdd for passado */}
+        {onAdd && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            <CirclePlus
+              className="h-5 w-5 text-primary-500 cursor-pointer hover:text-primary-600 transition-colors"
+              onClick={onAdd}
+            />
+          </div>
+        )}
       </div>
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>

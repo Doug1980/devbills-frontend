@@ -26,7 +26,7 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <header>
-            <h1 className="text-center text-3xl font-extrabold text-gray-900">DevBills</h1>
+            <h1 className="text-center text-3xl font-extrabold text-gray-900">DevBills PRO</h1>
             <p className="mt-2 text-center text-sm text-gray-600">
               Gerencie suas finanças de forma simples e eficiente
             </p>

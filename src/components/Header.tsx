@@ -56,7 +56,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex gap-2 text-2xl text-primary-500 items-center font-bold">
             <Activity className="w-6 h-6" />
-            DevBills
+            DevBills PRO
           </Link>
 
           {/* MENU DESKTOP */}
