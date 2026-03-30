@@ -1,13 +1,6 @@
-// Import the functions you need from the SDKs you need
-
 import { type FirebaseOptions, initializeApp } from "firebase/app";
-import { GoogleAuthProvider, getAuth } from "firebase/auth";
+import { GithubAuthProvider, GoogleAuthProvider, getAuth } from "firebase/auth";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -18,9 +11,10 @@ const firebaseConfig: FirebaseOptions = {
   measurementId: "G-NQW7D6ZDZQ",
 };
 
-// Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 const googleAuthProvider = new GoogleAuthProvider();
+// ✅ provider do GitHub adicionado
+const githubAuthProvider = new GithubAuthProvider();
 
-export { firebaseApp, firebaseAuth, googleAuthProvider };
+export { firebaseApp, firebaseAuth, googleAuthProvider, githubAuthProvider };

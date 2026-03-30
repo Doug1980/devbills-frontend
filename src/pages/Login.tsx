@@ -1,19 +1,25 @@
-import { useEffect } from "react";
+import { Activity, AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const { signWithGoogle, authState } = useAuth();
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
-  const handleLogin = async () => {
-    try {
-      await signWithGoogle();
-    } catch (err) {
-      console.error("Erro ao fazer o login com o Google", err);
-    }
-  };
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
+
+  const { signWithGoogle, signWithGithub, signInWithEmail, signUpWithEmail, authState } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (authState.user && !authState.loading) {
@@ -21,39 +27,253 @@ const Login = () => {
     }
   }, [authState.user, authState.loading, navigate]);
 
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await signInWithEmail(loginEmail, loginPassword);
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (registerPassword !== registerConfirmPassword) {
+      setError("As senhas não coincidem");
+      return;
+    }
+
+    if (registerPassword.length < 6) {
+      setError("Senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signUpWithEmail(registerName, registerEmail, registerPassword);
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await signWithGoogle();
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGithub = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await signWithGithub();
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputClass = `block w-full rounded-xl border border-gray-700 bg-gray-800 
+    px-4 py-3 text-sm text-gray-50 focus:outline-none focus:ring-2 
+    focus:border-primary-500 input-focus`;
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <header>
-            <h1 className="text-center text-3xl font-extrabold text-gray-900">DevBills PRO</h1>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Gerencie suas finanças de forma simples e eficiente
-            </p>
-          </header>
-
-          <main className="mt-8 bg-white py-8 px-4 shadow-md rounded-lg sm:px-10 space-y-6">
-            <section className="mb-6">
-              <h2 className="text-lg font-medium text-gray-900">Faça o login para continuar</h2>
-              <p className="mt-1 text-sm text-gray-600">
-                Acesse sua conta para começar a gerenciar suas finanças
-              </p>
-            </section>
-
-            <GoogleLoginButton onClick={handleLogin} isLoading={false} />
-
-            {authState.error && (
-              <div className="bg-red-300 text-center text-red-700 mt-4">
-                <p>{authState.error} Erro no sistema</p>
-              </div>
-            )}
-            <footer className="mt-6">
-              <p className="mt-1 text-sm text-gray-600 text-center">
-                Ao fazer Login, você concorda com nossos termos de uso e política de privacidade.
-              </p>
-            </footer>
-          </main>
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <Activity className="w-8 h-8 text-primary-500" />
+          <span className="text-3xl font-bold text-primary-500">DevBills PRO</span>
         </div>
+
+        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8">
+          {/* Erro */}
+          {error && (
+            <div className="flex items-center gap-2 bg-red-300 border border-red-700 rounded-xl p-3 mb-4">
+              <AlertCircle className="w-4 h-4 text-red-700 shrink-0" />
+              <p className="text-sm text-red-900">{error}</p>
+            </div>
+          )}
+
+          {/* ✅ formulário de login — sempre visível */}
+          {!showRegister && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-50 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  required
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-50 mb-2">Senha</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••"
+                    required
+                    className={`${inputClass} pr-10`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-50"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Entrar"}
+              </button>
+            </form>
+          )}
+
+          {/* ✅ formulário de cadastro */}
+          {showRegister && (
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-50 mb-2">Nome</label>
+                <input
+                  type="text"
+                  value={registerName}
+                  onChange={(e) => setRegisterName(e.target.value)}
+                  placeholder="Seu nome"
+                  required
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-50 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={registerEmail}
+                  onChange={(e) => setRegisterEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  required
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-50 mb-2">Senha</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                    className={`${inputClass} pr-10`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-50"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-50 mb-2">
+                  Confirmar senha
+                </label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={registerConfirmPassword}
+                  onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                  placeholder="Repita a senha"
+                  required
+                  className={inputClass}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar"}
+              </button>
+            </form>
+          )}
+
+          {/* Divisor2 */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-gray-700" />
+            <span className="text-xs text-gray-400">ou continue com</span>
+            <div className="flex-1 h-px bg-gray-700" />
+          </div>
+
+          {/* ✅ botão Google */}
+          <GoogleLoginButton onClick={handleGoogle} isLoading={loading} />
+
+          {/* ✅ botão GitHub */}
+          <button
+            type="button"
+            onClick={handleGithub}
+            disabled={loading}
+            className="mt-5 w-full flex items-center justify-center gap-3 border border-gray-400 text-gray-300 font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all disabled:opacity-50"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+            </svg>
+            Entrar com GitHub
+          </button>
+
+          {/* Divisor */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-gray-700" />
+            <span className="text-xs text-gray-400">ou crie uma nova conta</span>
+            <div className="flex-1 h-px bg-gray-700" />
+          </div>
+
+          {/* ✅ botão Criar conta — alterna entre login e cadastro */}
+          <button
+            type="button"
+            onClick={() => {
+              setShowRegister(!showRegister);
+              setError("");
+            }}
+            className="w-full bg-gray-600 border border-gray-400 text-gray-300 font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all"
+          >
+            {showRegister ? "← Voltar para login" : "Criar conta"}
+          </button>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-gray-400 mt-6">
+          DevBills 2026 — Desenvolvido por{" "}
+          <span className="font-semibold text-gray-300">Douglas Salazar</span>
+        </p>
       </div>
     </div>
   );

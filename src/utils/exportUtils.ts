@@ -40,7 +40,7 @@ export const exportMonthlyPDF = (
   year: number,
 ): void => {
   const doc = new jsPDF();
-  const title = `DevBills — ${monthNames[month]}/${year}`;
+  const title = `DevBills PRO — ${monthNames[month]}/${year}`;
 
   doc.setFontSize(16);
   doc.text(title, 14, 16);
@@ -59,7 +59,7 @@ export const exportMonthlyPDF = (
 //exportar PDF anual
 export const exportAnnualPDF = (transactions: Transaction[], year: number): void => {
   const doc = new jsPDF();
-  const title = `DevBills — Anual ${year}`;
+  const title = `DevBills PRO — Anual ${year}`;
 
   doc.setFontSize(16);
   doc.text(title, 14, 16);

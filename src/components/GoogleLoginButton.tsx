@@ -11,7 +11,7 @@ const GoogleLoginButton = ({ isLoading, onClick }: GoogleLoginProps) => {
       onClick={onClick}
       isLoading={isLoading}
       fullWidth
-      className="flex items-center justify-center"
+      className="flex items-center justify-center bg-white"
       type="button"
     >
       <svg className="h-5 w-5 mr-2" aria-hidden="true" viewBox="0 0 24 24">
