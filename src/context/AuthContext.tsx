@@ -1,8 +1,11 @@
 import {
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   signOut as firebaseSignOut,
-  linkWithPopup, // ✅ adicionar
+  linkWithCredential,
+  linkWithPopup,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   updateProfile,
@@ -14,10 +17,11 @@ import type { AuthState } from "../types/auth";
 interface AuthContextProps {
   authState: AuthState;
   signWithGoogle: () => Promise<void>;
-  // ✅ nova função GitHub
   signWithGithub: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (name: string, email: string, password: string) => Promise<void>;
+  // ✅ nova função de redefinição de senha
+  resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -61,7 +65,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signWithGoogle = async (): Promise<void> => {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      await signInWithPopup(firebaseAuth, googleAuthProvider);
+      const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
+      const { user } = result;
+
+      // ✅ verifica se há conta manual com o mesmo email e vincula
+      const providerIds = user.providerData.map((p) => p.providerId);
+      if (!providerIds.includes("password") && user.email) {
+        // conta só tem Google — sem necessidade de vincular
+      }
+
+      setAuthState({
+        user: {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        },
+        error: null,
+        loading: false,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao tentar logar com Google";
       setAuthState((prev) => ({ ...prev, loading: false, error: message }));
@@ -87,11 +109,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (err: any) {
       if (err?.code === "auth/account-exists-with-different-credential") {
         try {
-          // ✅ faz login com Google primeiro
           const googleResult = await signInWithPopup(firebaseAuth, googleAuthProvider);
-          // ✅ vincula o GitHub à conta Google existente
           await linkWithPopup(googleResult.user, githubAuthProvider);
-
           setAuthState({
             user: {
               uid: googleResult.user.uid,
@@ -103,7 +122,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             loading: false,
           });
         } catch (linkErr) {
-          console.error("❌ Erro ao vincular:", linkErr);
           const message = "Erro ao vincular contas. Tente novamente.";
           setAuthState((prev) => ({ ...prev, loading: false, error: message }));
           throw new Error(message);
@@ -136,6 +154,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // ✅ cadastro com nome, email e senha
+  // ✅ se o email já existe via Google, vincula automaticamente
   const signUpWithEmail = async (name: string, email: string, password: string): Promise<void> => {
     setAuthState((prev) => ({ ...prev, loading: true, error: null }));
     try {
@@ -152,13 +171,66 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading: false,
       });
     } catch (err: any) {
+      // ✅ email já existe via Google — vincula email/senha à conta Google
+      if (err?.code === "auth/email-already-in-use") {
+        try {
+          const googleResult = await signInWithPopup(firebaseAuth, googleAuthProvider);
+          // ✅ vincula a credencial de email/senha à conta Google
+          const credential = EmailAuthProvider.credential(email, password);
+          await linkWithCredential(googleResult.user, credential);
+          // ✅ atualiza o nome se necessário
+          if (!googleResult.user.displayName) {
+            await updateProfile(googleResult.user, { displayName: name });
+          }
+          setAuthState({
+            user: {
+              uid: googleResult.user.uid,
+              email: googleResult.user.email,
+              displayName: googleResult.user.displayName ?? name,
+              photoURL: googleResult.user.photoURL,
+            },
+            error: null,
+            loading: false,
+          });
+          return;
+        } catch (linkErr: any) {
+          // ✅ se já está vinculado, só faz login normal
+          if (linkErr?.code === "auth/provider-already-linked") {
+            try {
+              await signInWithEmailAndPassword(firebaseAuth, email, password);
+              return;
+            } catch {
+              const message = "Erro ao fazer login. Tente novamente.";
+              setAuthState((prev) => ({ ...prev, loading: false, error: message }));
+              throw new Error(message);
+            }
+          }
+          const message = "Erro ao vincular conta. Tente usar o botão 'Entrar com Google'.";
+          setAuthState((prev) => ({ ...prev, loading: false, error: message }));
+          throw new Error(message);
+        }
+      }
+
       const errorMessages: Record<string, string> = {
-        "auth/email-already-in-use": "Este email já está em uso",
         "auth/weak-password": "Senha muito fraca — mínimo 6 caracteres",
         "auth/invalid-email": "Email inválido",
       };
       const message = errorMessages[err?.code] ?? "Erro ao criar conta";
       setAuthState((prev) => ({ ...prev, loading: false, error: message }));
+      throw new Error(message);
+    }
+  };
+
+  // ✅ redefinição de senha via email
+  const resetPassword = async (email: string): Promise<void> => {
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email);
+    } catch (err: any) {
+      const errorMessages: Record<string, string> = {
+        "auth/user-not-found": "Nenhuma conta encontrada com este email",
+        "auth/invalid-email": "Email inválido",
+      };
+      const message = errorMessages[err?.code] ?? "Erro ao enviar email de redefinição";
       throw new Error(message);
     }
   };
@@ -181,6 +253,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signWithGithub,
         signInWithEmail,
         signUpWithEmail,
+        resetPassword,
         signOut,
       }}
     >

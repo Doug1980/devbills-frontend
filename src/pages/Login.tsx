@@ -9,6 +9,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -18,7 +20,14 @@ const Login = () => {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
 
-  const { signWithGoogle, signWithGithub, signInWithEmail, signUpWithEmail, authState } = useAuth();
+  const {
+    signWithGoogle,
+    signWithGithub,
+    signInWithEmail,
+    signUpWithEmail,
+    resetPassword,
+    authState,
+  } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +39,7 @@ const Login = () => {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setResetSent(false);
     setLoading(true);
     try {
       await signInWithEmail(loginEmail, loginPassword);
@@ -45,13 +55,18 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    if (registerPassword !== registerConfirmPassword) {
-      setError("As senhas não coincidem");
+    // ✅ validação de senha forte
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+
+    if (!passwordRegex.test(registerPassword)) {
+      setError(
+        "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um caractere especial (!@#$%^&*)",
+      );
       return;
     }
 
-    if (registerPassword.length < 6) {
-      setError("Senha deve ter no mínimo 6 caracteres");
+    if (registerPassword !== registerConfirmPassword) {
+      setError("As senhas não coincidem");
       return;
     }
 
@@ -92,6 +107,23 @@ const Login = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!loginEmail) {
+      setError("Digite seu email acima para redefinir a senha");
+      return;
+    }
+    setResetLoading(true);
+    setError("");
+    try {
+      await resetPassword(loginEmail);
+      setResetSent(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   const inputClass = `block w-full rounded-xl border border-gray-700 bg-gray-800 
     px-4 py-3 text-sm text-gray-50 focus:outline-none focus:ring-2 
     focus:border-primary-500 input-focus`;
@@ -114,7 +146,17 @@ const Login = () => {
             </div>
           )}
 
-          {/* ✅ formulário de login — sempre visível */}
+          {/* Sucesso reset */}
+          {resetSent && (
+            <div className="flex items-center gap-2 bg-green-900/30 border border-primary-500 rounded-xl p-3 mb-4">
+              <p className="text-sm text-primary-500">
+                ✅ Email de redefinição enviado para <strong>{loginEmail}</strong>! Verifique sua
+                caixa de entrada.
+              </p>
+            </div>
+          )}
+
+          {/* ✅ formulário de login */}
           {!showRegister && (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
@@ -139,19 +181,30 @@ const Login = () => {
                     required
                     className={`${inputClass} pr-10`}
                   />
+                  {/* ✅ cursor-pointer no olho */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-50"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-50 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                {/* ✅ cursor-pointer no esqueci senha */}
+                <button
+                  type="button"
+                  onClick={handleResetPassword}
+                  disabled={resetLoading}
+                  className="mt-1 text-xs text-primary-500 hover:text-primary-600 transition-colors cursor-pointer"
+                >
+                  {resetLoading ? "Enviando..." : "Esqueci minha senha"}
+                </button>
               </div>
+              {/* ✅ cursor-pointer no Entrar */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Entrar"}
               </button>
@@ -190,14 +243,16 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
+                    // ✅ placeholder atualizado com requisitos
+                    placeholder="Mín. 8 caracteres, 1 maiúscula e 1 especial"
                     required
                     className={`${inputClass} pr-10`}
                   />
+                  {/* ✅ cursor-pointer no olho */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-50"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-50 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -216,17 +271,18 @@ const Login = () => {
                   className={inputClass}
                 />
               </div>
+              {/* ✅ cursor-pointer no Salvar */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar"}
               </button>
             </form>
           )}
 
-          {/* Divisor2 */}
+          {/* Divisor */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-gray-700" />
             <span className="text-xs text-gray-400">ou continue com</span>
@@ -236,12 +292,12 @@ const Login = () => {
           {/* ✅ botão Google */}
           <GoogleLoginButton onClick={handleGoogle} isLoading={loading} />
 
-          {/* ✅ botão GitHub */}
+          {/* ✅ cursor-pointer no GitHub */}
           <button
             type="button"
             onClick={handleGithub}
             disabled={loading}
-            className="mt-5 w-full flex items-center justify-center gap-3 border border-gray-400 text-gray-300 font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all disabled:opacity-50"
+            className="mt-5 w-full flex items-center justify-center gap-3 border border-gray-400 text-gray-300 font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all disabled:opacity-50 cursor-pointer"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
@@ -256,14 +312,15 @@ const Login = () => {
             <div className="flex-1 h-px bg-gray-700" />
           </div>
 
-          {/* ✅ botão Criar conta — alterna entre login e cadastro */}
+          {/* ✅ cursor-pointer no Criar conta */}
           <button
             type="button"
             onClick={() => {
               setShowRegister(!showRegister);
               setError("");
+              setResetSent(false);
             }}
-            className="w-full bg-gray-600 border border-gray-400 text-gray-300 font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all"
+            className="w-full bg-gray-600 border border-gray-400 text-gray-300 font-semibold py-3 rounded-xl hover:bg-gray-800 transition-all cursor-pointer"
           >
             {showRegister ? "← Voltar para login" : "Criar conta"}
           </button>

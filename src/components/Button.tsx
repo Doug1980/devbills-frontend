@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariants = "primary" | "outline" | "secondary" | "success" | "danger";
+type ButtonVariants = "primary" | "outline" | "secondary" | "success" | "danger" | "none";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -21,10 +21,12 @@ const Button = ({
   const variantClasses = {
     primary:
       "bg-primary-500 text-[#051626] font-semibold hover:bg-primary-600 active:trasnlate-y-0",
-    outline: "border border-primary-500 text-primary-500 hover:bg-primary-500/10 ",
+    outline: "border border-primary-500 text-primary-500 hover:bg-primary-500/10",
     secondary: "bg-gray-800 text-white hover:bg-gray-700",
     success: "bg-green-500 text-[#051626] hover:brightness-90",
     danger: "bg-red-500 text-white hover:brightness-90",
+    // ✅ sem estilo padrão — usa apenas o className passado
+    none: "",
   };
 
   const renderLoading = () => (
