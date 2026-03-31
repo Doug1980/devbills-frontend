@@ -138,7 +138,7 @@ const Transactions = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Input
             placeholder="Buscar transações..."
-            icon={<Search className="w-4 h-4" />}
+            icon={<Search className="w-4 h-4 mt-1 ml-1" />}
             fullWidth
             onChange={handleSearchChange}
             value={searchText}

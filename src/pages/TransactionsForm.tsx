@@ -34,12 +34,15 @@ const TransactionsForm = () => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  // ✅ estado que controla abertura/fechamento do modal de categoria
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false);
+
+  // ✅ movido para o escopo correto do componente (fora do fetchCategories)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
   const formId = useId();
   const navigate = useNavigate();
 
-  // ✅ extraído do useEffect para poder ser reutilizado no onCategoryCreated
+  // ✅ fetchCategories sem useState interno — agora é uma função pura de busca
   const fetchCategories = async (): Promise<void> => {
     const response = await getCategories();
     setCategories(response);
@@ -110,6 +113,16 @@ const TransactionsForm = () => {
     navigate("/transacoes");
   };
 
+  const handleEditCategory = () => {
+    const selected = filteredCategories.find((c) => c.id === formData.categoryId);
+    if (!selected) {
+      toast.error("Selecione uma categoria para editar");
+      return;
+    }
+    setEditingCategory(selected);
+    setIsCategoryModalOpen(true);
+  };
+
   return (
     <div className="container-app py-8">
       <div className="max-w-2xl mx-auto">
@@ -122,7 +135,6 @@ const TransactionsForm = () => {
               <p>{error}</p>
             </div>
           )}
-
           <form onSubmit={handleSubmit}>
             <div className="mb-4 flex gap-2 flex-col">
               <label htmlFor={formId}>Tipo de Transação</label>
@@ -132,7 +144,6 @@ const TransactionsForm = () => {
                 onChange={handleTransactionType}
               />
             </div>
-
             <Input
               label="Descrição"
               name="description"
@@ -140,7 +151,6 @@ const TransactionsForm = () => {
               onChange={handleChange}
               placeholder="Ex: Supermercado, Salário, etc..."
             />
-
             <Input
               label="Valor"
               name="amount"
@@ -148,25 +158,21 @@ const TransactionsForm = () => {
               inputMode="decimal"
               step="0.01"
               min="0"
-              // ✅ exibe vazio quando valor é 0, evitando o "0" fixo no input
               value={formData.amount === 0 ? "" : formData.amount}
               onChange={handleChange}
               placeholder="0,00"
               icon={<DollarSign className="w-4 h-4 ml-2 mt-1" />}
-              // ✅ ao focar, limpa o campo se o valor for "0"
               onFocus={(e) => {
                 if (e.target.value === "0") {
                   e.target.value = "";
                 }
               }}
-              // ✅ ao sair do campo vazio, volta para 0
               onBlur={(e) => {
                 if (e.target.value === "") {
                   setFormData((prev) => ({ ...prev, amount: 0 }));
                 }
               }}
             />
-
             <Input
               label="Data"
               name="date"
@@ -175,15 +181,17 @@ const TransactionsForm = () => {
               onChange={handleChange}
               icon={<Calendar className="w-4 h-4 ml-2 mt-2" />}
             />
-
             <Select
               label="Categoria"
               name="categoryId"
               value={formData.categoryId}
               onChange={handleChange}
               icon={<Tag className="w-4 h-4" />}
-              // ✅ ao clicar no CirclePlus, abre o modal de nova categoria
-              onAdd={() => setIsCategoryModalOpen(true)}
+              onAdd={() => {
+                setEditingCategory(null);
+                setIsCategoryModalOpen(true);
+              }}
+              onEdit={handleEditCategory}
               options={[
                 { value: "", label: "Selecione uma categoria" },
                 ...filteredCategories.map((category) => ({
@@ -192,7 +200,6 @@ const TransactionsForm = () => {
                 })),
               ]}
             />
-
             <div className="flex justify-end space-x-3 mt-2">
               <Button variant="outline" onClick={handleCancel} type="button" disabled={loading}>
                 Cancelar
@@ -213,15 +220,15 @@ const TransactionsForm = () => {
               </Button>
             </div>
           </form>
-
-          {/* ✅ modal de criação de categoria — só renderiza quando isCategoryModalOpen é true */}
-          {/* ✅ onCategoryCreated chama fetchCategories para atualizar a lista automaticamente */}
-          {/* ✅ defaultType passa o tipo atual do formulário (despesa ou receita) para o modal */}
           <CategoryModal
             isOpen={isCategoryModalOpen}
-            onClose={() => setIsCategoryModalOpen(false)}
+            onClose={() => {
+              setIsCategoryModalOpen(false);
+              setEditingCategory(null);
+            }}
             onCategoryCreated={fetchCategories}
             defaultType={formData.type}
+            editingCategory={editingCategory}
           />
         </Card>
       </div>

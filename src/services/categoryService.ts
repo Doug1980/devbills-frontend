@@ -20,3 +20,16 @@ export const createCategory = async (data: { name: string; type: string }): Prom
     throw new Error();
   }
 };
+
+export const updateCategory = async (
+  id: string,
+  data: { name?: string; color?: string },
+): Promise<Category> => {
+  try {
+    const response = await api.put(`/categories/${id}`, data);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw new Error();
+  }
+};

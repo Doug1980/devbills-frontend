@@ -6,6 +6,7 @@ import { updateTransaction } from "../services/transactionServices";
 import type { Category } from "../types/category";
 import { type Transaction, TransactionType } from "../types/transactions";
 import Button from "./Button";
+import CategoryModal from "./CategoryModal";
 import Input from "./Input";
 import Select from "./Select";
 import TransactionTypeSelector from "./TransactionTypeSelector";
@@ -34,13 +35,16 @@ const EditTransactionModal = ({
     type: TransactionType.EXPENSE,
   });
 
-  // ✅ preenche o formulário com os dados da transação ao abrir o modal
+  // ✅ estados para o CategoryModal
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
   useEffect(() => {
     if (transaction) {
       setFormData({
         description: transaction.description,
         amount: transaction.amount,
-        date: transaction.date.split("T")[0], // ✅ formata para yyyy-mm-dd
+        date: transaction.date.split("T")[0],
         categoryId: transaction.category.id ?? "",
         type: transaction.type as TransactionType,
       });
@@ -69,6 +73,17 @@ const EditTransactionModal = ({
 
   const handleTransactionType = (type: TransactionType): void => {
     setFormData((prev) => ({ ...prev, type, categoryId: "" }));
+  };
+
+  // ✅ abre o modal de edição com a categoria selecionada
+  const handleEditCategory = () => {
+    const selected = filteredCategories.find((c) => c.id === formData.categoryId);
+    if (!selected) {
+      toast.error("Selecione uma categoria para editar");
+      return;
+    }
+    setEditingCategory(selected);
+    setIsCategoryModalOpen(true);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -103,12 +118,9 @@ const EditTransactionModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal */}
       <div className="relative bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md mx-4 z-10 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold">Editar Transação</h2>
           <button
@@ -128,7 +140,6 @@ const EditTransactionModal = ({
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Tipo */}
           <div className="mb-4 flex gap-2 flex-col">
             <label className="text-sm font-medium text-gray-50">Tipo de Transação</label>
             <TransactionTypeSelector value={formData.type} onChange={handleTransactionType} />
@@ -173,12 +184,18 @@ const EditTransactionModal = ({
             fullWidth
           />
 
+          {/* ✅ Select agora com onAdd e onEdit */}
           <Select
             label="Categoria"
             name="categoryId"
             value={formData.categoryId}
             onChange={handleChange}
             icon={<Tag className="w-4 h-4" />}
+            onAdd={() => {
+              setEditingCategory(null);
+              setIsCategoryModalOpen(true);
+            }}
+            onEdit={handleEditCategory}
             options={[
               { value: "", label: "Selecione uma categoria" },
               ...filteredCategories.map((category) => ({
@@ -206,6 +223,21 @@ const EditTransactionModal = ({
             </Button>
           </div>
         </form>
+
+        {/* ✅ CategoryModal integrado ao modal de edição de transação */}
+        <CategoryModal
+          isOpen={isCategoryModalOpen}
+          onClose={() => {
+            setIsCategoryModalOpen(false);
+            setEditingCategory(null);
+          }}
+          onCategoryCreated={async () => {
+            const data = await getCategories();
+            setCategories(data);
+          }}
+          defaultType={formData.type}
+          editingCategory={editingCategory}
+        />
       </div>
     </div>
   );
