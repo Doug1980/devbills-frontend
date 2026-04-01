@@ -102,10 +102,12 @@ const TransactionsForm = () => {
 
       toast.success("Transação realizada com sucesso");
       navigate("/transacoes");
-    } catch (err) {
-      toast.error("Falha ao adicionar transação");
-    } finally {
-      setLoading(false);
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        toast.error("Limite de transações excedido!");
+      } else {
+        toast.error("Falha ao adicionar transação");
+      }
     }
   };
 

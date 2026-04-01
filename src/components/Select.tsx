@@ -106,10 +106,9 @@ const Select = ({
           </div>
         )}
 
-        {/* ✅ quando não tem onAdd nem onEdit, mantém comportamento original */}
-        {!onAdd && !onEdit && (
+        {/* {!onAdd && !onEdit && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-3"></div>
-        )}
+        )} */}
       </div>
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
