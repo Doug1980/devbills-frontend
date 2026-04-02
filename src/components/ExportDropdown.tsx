@@ -99,7 +99,7 @@ const ExportDropdown = ({ month, year, isAnnual }: ExportDropdownProps) => {
         <>
           {/* ✅ backdrop invisível para fechar ao clicar fora */}
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-20 overflow-hidden">
+          <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-xl shadow-lg z-20 overflow-hidden">
             {Object.entries(options).map(([key, option]) => (
               <button
                 key={key}
