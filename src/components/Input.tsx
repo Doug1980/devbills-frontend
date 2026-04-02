@@ -13,7 +13,7 @@ const Input = ({ fullWidth, icon, label, error, id, ...rest }: InputProps) => {
   const inputId = id || generatedId;
 
   return (
-    <div className={`${fullWidth ? "w-full" : ""} mb-4`}>
+    <div className={`${fullWidth ? "w-full" : ""}`}>
       {label && (
         <label htmlFor={inputId} className="block text-sm font-medium text-gray-50 mb-2">
           {label}

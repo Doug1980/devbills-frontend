@@ -34,7 +34,7 @@ const Select = ({
   const ref = useRef<HTMLDivElement>(null);
 
   return (
-    <div className={`${fullWidth ? "w-full" : ""} mb-4`}>
+    <div className={`${fullWidth ? "w-full" : ""}`}>
       {label && (
         <label htmlFor={selectId} className="block text-sm text-gray-50 mb-2">
           {label}

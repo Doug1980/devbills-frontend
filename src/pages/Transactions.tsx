@@ -134,8 +134,8 @@ const Transactions = () => {
         />
       </Card>
 
-      <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <Card className="mb-6 p-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-center w-full">
           <Input
             placeholder="Buscar transações..."
             icon={<Search className="w-4 h-4 mt-1 ml-1" />}

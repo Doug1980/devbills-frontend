@@ -21,7 +21,7 @@ const Card = ({
 }: CardProps) => {
   return (
     <div
-      className={`bg-gray-900 rounded-xl cursor-pointer border border-gray-700 shadow-md p-6 transition-all
+      className={`bg-gray-900 rounded-xl cursor-pointer border border-gray-700 shadow-md p-2 transition-all
         ${hover ? "hover:border-primary-500 hover:shadow-lg hover:translate-0.5" : ""}
         ${glowEffect ? "glow" : ""}
         ${className}

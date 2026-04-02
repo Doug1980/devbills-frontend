@@ -164,7 +164,12 @@ const EditTransactionModal = ({
             value={formData.amount === 0 ? "" : formData.amount}
             onChange={handleChange}
             placeholder="0,00"
-            icon={<DollarSign className="w-4 h-4 ml-2 mt-1" />}
+            icon={
+              <span className="flex items-center text-gray-400 text-sm ml-2 mt-1">
+                <span className="text-base">R</span>
+                <DollarSign className="w-4 h-4" />
+              </span>
+            }
             fullWidth
             onFocus={(e) => {
               if (e.target.value === "0") e.target.value = "";

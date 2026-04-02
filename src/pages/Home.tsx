@@ -40,7 +40,7 @@ const Home = () => {
   return (
     <div className="bg-gray-950 min-h-screen">
       <div className="container-app">
-        <section className="py-12 md:py-20 pl-10">
+        <section className="py-12 md:py-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
