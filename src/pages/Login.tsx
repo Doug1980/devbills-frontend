@@ -1,6 +1,6 @@
 import { Activity, AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
 
@@ -133,8 +133,10 @@ const Login = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <Activity className="w-8 h-8 text-primary-500" />
-          <span className="text-3xl font-bold text-primary-500">DevBills PRO</span>
+          <Activity className="w-10 h-10 text-primary-500" />
+          <Link to="/" className="flex gap-2 text-4xl text-primary-500 items-center font-bold">
+            DevBills PRO
+          </Link>
         </div>
 
         <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8">
