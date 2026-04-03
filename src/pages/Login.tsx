@@ -270,7 +270,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full bg-primary-500 text-gray-900 font-semibold py-3 rounded-xl hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-10"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Criar"}
               </button>
