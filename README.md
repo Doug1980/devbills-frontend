@@ -150,4 +150,4 @@ Este projeto está sob a licença **MIT**. Consulte o arquivo [LICENSE](LICENSE)
 
 ---
 
-<p align="center">Feito com ❤️ por <a href="https://github.com/Doug1980">Doug1980</a></p>
+<p align="center">Desenvolvido por <a href="https://github.com/Doug1980">Doug1980</a></p>
