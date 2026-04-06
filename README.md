@@ -1,73 +1,139 @@
-# React + TypeScript + Vite
+# 💸 DevBills — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web para gerenciamento de finanças pessoais, construída com **React 19**, **TypeScript** e **Tailwind CSS v4**. Conecta-se a uma API REST própria e utiliza **Firebase** para autenticação.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Tecnologias
 
-## React Compiler
+| Camada | Tecnologia |
+|---|---|
+| UI | React 19 + TypeScript |
+| Estilo | Tailwind CSS v4 |
+| Roteamento | React Router v7 |
+| HTTP | Axios |
+| Autenticação | Firebase v12 |
+| Gráficos | Recharts |
+| Exportação | jsPDF + jsPDF-AutoTable + xlsx |
+| Bundler | Vite 8 |
+| Linter/Formatter | Biome + ESLint |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📋 Pré-requisitos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Node.js** >= 18
+- **Yarn** (gerenciador de pacotes)
+- Uma instância da [API DevBills](https://github.com/Doug1980) rodando localmente ou em produção
+- Projeto criado no [Firebase Console](https://console.firebase.google.com/)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## ⚙️ Instalação e configuração
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/Doug1980/devbills-frontend.git
+cd devbills-frontend
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Instale as dependências
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+yarn install
 ```
+
+### 3. Configure as variáveis de ambiente
+
+Copie o arquivo de exemplo e preencha com suas credenciais:
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` com os dados do seu projeto Firebase e a URL da API:
+
+```env
+VITE_FIREBASE_API_KEY=sua_api_key
+VITE_FIREBASE_AUTH_DOMAIN=seu_projeto.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=seu_projeto_id
+VITE_FIREBASE_STORAGE_BUCKET=seu_projeto.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=seu_sender_id
+VITE_FIREBASE_APP_ID=seu_app_id
+VITE_API_URL=http://localhost:3333
+```
+
+> **Como obter as credenciais do Firebase:** acesse o [Firebase Console](https://console.firebase.google.com/), selecione seu projeto → Configurações do Projeto → Seus apps → Configuração do SDK.
+
+---
+
+## ▶️ Rodando o projeto
+
+### Desenvolvimento
+
+```bash
+yarn dev
+```
+
+Acesse em: [http://localhost:5173](http://localhost:5173)
+
+### Build de produção
+
+```bash
+yarn build
+```
+
+### Preview do build
+
+```bash
+yarn preview
+```
+
+---
+
+## 🗂️ Estrutura do projeto
+
+```
+src/
+├── assets/         # Imagens e arquivos estáticos
+├── components/     # Componentes reutilizáveis
+├── pages/          # Páginas da aplicação
+├── services/       # Configuração do Axios e chamadas à API
+├── contexts/       # Contextos React (auth, etc.)
+├── hooks/          # Custom hooks
+├── types/          # Tipos e interfaces TypeScript
+└── main.tsx        # Entry point da aplicação
+```
+
+---
+
+## ✨ Funcionalidades
+
+- 🔐 Autenticação com Firebase (login/logout)
+- 📊 Dashboard com gráficos de receitas e despesas (Recharts)
+- ➕ Cadastro e listagem de transações financeiras
+- 🗂️ Organização por categorias
+- 📄 Exportação de relatórios em **PDF** e **Excel**
+- 📱 Layout responsivo com Tailwind CSS
+
+---
+
+## 🔧 Scripts disponíveis
+
+| Comando | Descrição |
+|---|---|
+| `yarn dev` | Inicia o servidor de desenvolvimento |
+| `yarn build` | Gera o build de produção |
+| `yarn preview` | Faz preview do build gerado |
+| `yarn lint` | Executa o ESLint no projeto |
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença **MIT**. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+<p align="center">Feito com ❤️ por <a href="https://github.com/Doug1980">Doug1980</a></p>
