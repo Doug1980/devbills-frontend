@@ -4,6 +4,20 @@ Interface web para gerenciamento de finanças pessoais, construída com **React 
 
 ---
 
+## 🖥️ Preview
+
+![Landing Page](https://github.com/user-attachments/assets/7814da98-cf7e-43c4-b8f1-762e2a6664a8)
+
+![Transações](https://github.com/user-attachments/assets/2afaf30f-6910-4828-b412-f65a55c2dc74)
+
+![Nova Transação](https://github.com/user-attachments/assets/f734d418-c22e-4a2a-989e-bc74871ea461)
+
+![Dashboard 1](https://github.com/user-attachments/assets/4d244285-607e-478b-8a82-4443bcbee8ee)
+
+![Dashboard 2](https://github.com/user-attachments/assets/3c5b1782-722e-4880-9841-4a795419ae72)
+
+---
+
 ## 🚀 Tecnologias
 
 | Camada | Tecnologia |
